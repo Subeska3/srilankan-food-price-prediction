@@ -170,7 +170,7 @@ def create_features_for_prediction(input_data, historical_data, feature_info):
 # MAIN APP
 # ============================================================
 def main():
-    st.markdown("<h1 style='text-align: center;'>📈 Sri Lanka Food Price Volatility Predictor</h1>", 
+    st.markdown("<h1 style='text-align: center;'>Sri Lanka Food Price Volatility Predictor</h1>", 
                 unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #666;'>Using Pre-trained CatBoost Model</p>", 
                 unsafe_allow_html=True)
@@ -180,7 +180,7 @@ def main():
     
     if missing_files:
         st.error(f"""
-        ### ⚠️ Required Files Missing!
+        ### Required Files Missing!
         
         The following files are missing: **{', '.join(missing_files)}**
         
@@ -200,36 +200,36 @@ def main():
         feat_imp = load_feature_importance()
         class_report = load_classification_report()
         
-        st.sidebar.success("✅ Model loaded!")
+        st.sidebar.success("Model loaded!")
         
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         return
     
     # Sidebar navigation
-    st.sidebar.header("🎛️ Navigation")
+    st.sidebar.header("Navigation")
     
     page = st.sidebar.radio(
         "Go to:",
-        ["📊 Overview", "🔍 Model Performance", "📈 Feature Analysis", 
-         "🔬 SHAP Analysis", "🎯 Make Predictions", "📋 Data Explorer"]
+        ["Overview", "Model Performance", "Feature Analysis", 
+         "SHAP Analysis", "Make Predictions", "Data Explorer"]
     )
     
     # ============================================================
     # PAGE: OVERVIEW
     # ============================================================
-    if page == "📊 Overview":
+    if page == "Overview":
         st.header("Dataset & Model Overview")
         
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric("📊 Total Records", f"{len(df):,}")
+            st.metric("Total Records", f"{len(df):,}")
         with col2:
-            st.metric("📈 Volatile Records", f"{df['high_volatility'].sum():,}")
+            st.metric("Volatile Records", f"{df['high_volatility'].sum():,}")
         with col3:
-            st.metric("🥗 Commodities", f"{df['commodity'].nunique()}")
+            st.metric("Commodities", f"{df['commodity'].nunique()}")
         with col4:
-            st.metric("📍 Markets", f"{df['market'].nunique()}")
+            st.metric("Markets", f"{df['market'].nunique()}")
         
         st.markdown("---")
         
@@ -258,7 +258,7 @@ def main():
     # ============================================================
     # PAGE: MODEL PERFORMANCE  
     # ============================================================
-    elif page == "🔍 Model Performance":
+    elif page == "Model Performance":
         st.header("Model Performance")
         
         test_m = metrics['test']
@@ -266,20 +266,20 @@ def main():
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("🎯 Test Accuracy", f"{test_m['accuracy']:.1%}")
+            st.metric("Test Accuracy", f"{test_m['accuracy']:.1%}")
         with col2:
-            st.metric("⚖️ Test F1-Score", f"{test_m['f1']:.3f}")
+            st.metric("Test F1-Score", f"{test_m['f1']:.3f}")
         with col3:
-            st.metric("📊 Test ROC-AUC", f"{test_m['roc_auc']:.3f}")
+            st.metric("Test ROC-AUC", f"{test_m['roc_auc']:.3f}")
         
         # Overfitting check
         gap = train_m['accuracy'] - test_m['accuracy']
         if gap < 0.05:
-            st.success(f"✅ Model generalization is GOOD (Train-Test gap: {gap:.4f})")
+            st.success(f"Model generalization is GOOD (Train-Test gap: {gap:.4f})")
         elif gap < 0.10:
-            st.warning(f"⚡ Slight overfitting detected (Train-Test gap: {gap:.4f})")
+            st.warning(f"Slight overfitting detected (Train-Test gap: {gap:.4f})")
         else:
-            st.error(f"⚠️ Overfitting detected (Train-Test gap: {gap:.4f})")
+            st.error(f"Overfitting detected (Train-Test gap: {gap:.4f})")
         
         st.markdown("---")
         
@@ -287,7 +287,7 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("📊 Train vs Test Metrics")
+            st.subheader("Train vs Test Metrics")
             metrics_df = pd.DataFrame({
                 'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
                 'Train': [train_m['accuracy'], train_m['precision'], train_m['recall'],
@@ -305,7 +305,7 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            st.subheader("🎯 Confusion Matrix")
+            st.subheader("Confusion Matrix")
             # Calculate confusion matrix from test predictions
             # We need to recreate it from the data
             test_data = df.sample(frac=0.2, random_state=42)  # Approximate test set
@@ -343,7 +343,7 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("📈 ROC Curve")
+            st.subheader("ROC Curve")
             # Generate ROC curve points
             fpr_points = np.linspace(0, 1, 100)
             # Approximate TPR based on AUC (using a simple model)
@@ -376,7 +376,7 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            st.subheader("📉 Precision-Recall Curve")
+            st.subheader("Precision-Recall Curve")
             # Generate PR curve points
             recall_points = np.linspace(0.01, 1, 100)
             # Approximate precision based on PR-AUC
@@ -414,7 +414,7 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("📊 Prediction Probability Distribution")
+            st.subheader("Prediction Probability Distribution")
             # Simulate prediction distributions based on model performance
             np.random.seed(42)
             n_samples = 1000
@@ -451,7 +451,7 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            st.subheader("📋 Detailed Metrics Table")
+            st.subheader("Detailed Metrics Table")
             
             # Create detailed metrics dataframe
             detailed_metrics = pd.DataFrame({
@@ -504,7 +504,7 @@ def main():
     # ============================================================
     # PAGE: FEATURE ANALYSIS
     # ============================================================
-    elif page == "📈 Feature Analysis":
+    elif page == "Feature Analysis":
         st.header("Feature Importance")
         
         fig = px.bar(feat_imp.head(15), x='importance', y='feature', orientation='h',
@@ -518,51 +518,11 @@ def main():
     # ============================================================
     # PAGE: SHAP ANALYSIS
     # ============================================================
-    elif page == "🔬 SHAP Analysis":
-        st.header("🔬 SHAP (SHapley Additive exPlanations) Analysis")
-        
-        st.markdown("""
-        **SHAP values explain how each feature contributes to the model's predictions.**
-        
-        - **Positive SHAP value** → Increases probability of high volatility
-        - **Negative SHAP value** → Decreases probability of high volatility
-        """)
-        
-        st.markdown("---")
-        
-        # Display saved SHAP plots
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.subheader("📊 SHAP Summary Plot")
-            if os.path.exists('shap_summary_plot.png'):
-                st.image('shap_summary_plot.png', use_container_width=True)
-            else:
-                st.warning("SHAP summary plot not found. Please run the training script first.")
-        
-        with col2:
-            st.subheader("📖 How to Read This Plot")
-            st.markdown("""
-            **Each row** = One feature
-            
-            **Each dot** = One data point
-            
-            **Color:**
-            - 🔴 Red = High feature value
-            - 🔵 Blue = Low feature value
-            
-            **Position (X-axis):**
-            - Right (+) = Pushes toward **Volatile**
-            - Left (-) = Pushes toward **Stable**
-            
-            **Example:**
-            - If `rolling_volatility_3` has red dots on the right → High historical volatility predicts future volatility
-            """)
-        
-        st.markdown("---")
+    elif page == "SHAP Analysis":
+        st.header("SHAP (SHapley Additive exPlanations) Analysis")
         
         # Feature Importance from SHAP
-        st.subheader("📈 SHAP Feature Importance")
+        st.subheader("SHAP Feature Importance")
         
         col1, col2 = st.columns(2)
         
@@ -582,7 +542,7 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            st.markdown("### 🎯 Key Insights")
+            st.markdown("### Key Insights")
             
             top_features = feat_imp.head(5)['feature'].tolist()
             
@@ -599,68 +559,24 @@ def main():
             
             **Feature Categories:**
             
-            🕐 **Lag Features** (`rolling_volatility_3`, `price_change_lag_1`):
+            **Lag Features** (`rolling_volatility_3`, `price_change_lag_1`):
             - Historical patterns predict future volatility
             - "Volatility clustering" effect
             
-            💰 **Price Features** (`price_momentum`, `z_score`):
+            **Price Features** (`price_momentum`, `z_score`):
             - Unusual prices signal instability
             
-            📍 **Location** (`market`, `admin1`):
+            **Location** (`market`, `admin1`):
             - Regional market differences
             
-            📅 **Temporal** (`month`, `is_festive_period`):
+            **Temporal** (`month`, `is_festive_period`):
             - Seasonal effects
             """)
         
         st.markdown("---")
         
-        # SHAP Interpretation Guide
-        st.subheader("📚 Understanding SHAP Values")
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.markdown("""
-            ### What is SHAP?
-            
-            SHAP is based on **game theory** (Shapley values).
-            
-            It calculates each feature's contribution by considering all possible feature combinations.
-            
-            **Key Property:** SHAP values sum to the difference between prediction and average.
-            """)
-        
-        with col2:
-            st.markdown("""
-            ### Why Use SHAP?
-            
-            ✅ **Consistent** - Reliable importance
-            
-            ✅ **Local** - Explains individual predictions
-            
-            ✅ **Global** - Overall feature importance
-            
-            ✅ **Theoretically sound** - Based on game theory
-            """)
-        
-        with col3:
-            st.markdown("""
-            ### Applications
-            
-            🔍 **Model Debugging** - Find issues
-            
-            📋 **Compliance** - Explain to stakeholders
-            
-            🎯 **Feature Selection** - Identify key features
-            
-            ⚠️ **Bias Detection** - Check fairness
-            """)
-        
-        st.markdown("---")
-        
         # Interactive Feature Impact
-        st.subheader("🔍 Explore Individual Feature Impact")
+        st.subheader("Explore Individual Feature Impact")
         
         selected_feature = st.selectbox(
             "Select a feature to explore:",
@@ -701,34 +617,34 @@ def main():
     # ============================================================
     # PAGE: MAKE PREDICTIONS
     # ============================================================
-    elif page == "🎯 Make Predictions":
-        st.header("🎯 Predict Price Volatility")
+    elif page == "Make Predictions":
+        st.header("Predict Price Volatility")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            input_commodity = st.selectbox("🥗 Commodity", sorted(df['commodity'].unique()))
+            input_commodity = st.selectbox("Commodity", sorted(df['commodity'].unique()))
             commodity_cat = df[df['commodity'] == input_commodity]['category'].mode()
             default_cat = commodity_cat.iloc[0] if len(commodity_cat) > 0 else df['category'].mode().iloc[0]
-            input_category = st.selectbox("📁 Category", sorted(df['category'].unique()),
+            input_category = st.selectbox("Category", sorted(df['category'].unique()),
                                          index=list(sorted(df['category'].unique())).index(default_cat))
-            input_market = st.selectbox("📍 Market", sorted(df['market'].unique()))
+            input_market = st.selectbox("Market", sorted(df['market'].unique()))
         
         with col2:
-            input_province = st.selectbox("🏛️ Province", sorted(df['admin1'].unique()))
-            input_year = st.number_input("📆 Year", min_value=2020, max_value=2030, value=2025)
-            input_month = st.slider("📅 Month", 1, 12, 6)
+            input_province = st.selectbox("Province", sorted(df['admin1'].unique()))
+            input_year = st.number_input("Year", min_value=2020, max_value=2030, value=2025)
+            input_month = st.slider("Month", 1, 12, 6)
         
         with col3:
             commodity_prices = df[df['commodity'] == input_commodity]['price']
             default_price = commodity_prices.median() if len(commodity_prices) > 0 else 500.0
             
-            input_current_price = st.number_input("💰 Current Price (LKR)", 
+            input_current_price = st.number_input("Current Price (LKR)", 
                                                   min_value=1.0, value=float(default_price), step=10.0)
-            input_previous_price = st.number_input("📉 Previous Price (LKR)", 
+            input_previous_price = st.number_input("Previous Price (LKR)", 
                                                    min_value=1.0, value=float(default_price * 0.95), step=10.0)
         
-        if st.button("🔮 Predict Volatility", use_container_width=True, type="primary"):
+        if st.button("Predict Volatility", use_container_width=True, type="primary"):
             input_data = {
                 'commodity': input_commodity,
                 'category': input_category,
@@ -751,21 +667,21 @@ def main():
                 
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("📊 Price Change", f"{price_change:.1f}%")
+                    st.metric("Price Change", f"{price_change:.1f}%")
                 with col2:
-                    st.metric("🎯 Volatility Prob", f"{probability:.1%}")
+                    st.metric("Volatility Prob", f"{probability:.1%}")
                 with col3:
-                    st.metric("📈 Prediction", "VOLATILE" if prediction == 1 else "STABLE")
+                    st.metric("Prediction", "VOLATILE" if prediction == 1 else "STABLE")
                 
                 if prediction == 1:
-                    st.error(f"⚠️ **HIGH VOLATILITY PREDICTED** (Probability: {probability:.1%})")
+                    st.error(f"**HIGH VOLATILITY PREDICTED** (Probability: {probability:.1%})")
                 else:
-                    st.success(f"✅ **STABLE PRICE EXPECTED** (Volatility Probability: {probability:.1%})")
+                    st.success(f"**STABLE PRICE EXPECTED** (Volatility Probability: {probability:.1%})")
     
     # ============================================================
     # PAGE: DATA EXPLORER
     # ============================================================
-    elif page == "📋 Data Explorer":
+    elif page == "Data Explorer":
         st.header("Data Explorer")
         
         col1, col2 = st.columns(2)
