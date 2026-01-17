@@ -638,45 +638,19 @@ def main():
         
         with col1:
             st.subheader("Train vs Test Metrics")
-            metrics_df = pd.DataFrame({
-                'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
-                'Train': [train_m['accuracy'], train_m['precision'], train_m['recall'], train_m['f1'], train_m['roc_auc']],
-                'Test': [test_m['accuracy'], test_m['precision'], test_m['recall'], test_m['f1'], test_m['roc_auc']]
-            })
-            
-            fig = go.Figure()
-            fig.add_trace(go.Bar(name='Train', x=metrics_df['Metric'], y=metrics_df['Train'], 
-                                marker_color='#a78bfa'))
-            fig.add_trace(go.Bar(name='Test', x=metrics_df['Metric'], y=metrics_df['Test'], 
-                                marker_color='#8b5cf6'))
-            fig.update_layout(barmode='group', height=400, yaxis_range=[0, 1], template=get_plotly_template())
-            st.plotly_chart(fig, use_container_width=True)
+            train_image_path = 'metrics_comparison.png'
+            if os.path.exists(train_image_path):
+                st.image(train_image_path, use_container_width=True)
+            else:
+                st.warning("Train vs Test Metrics image not found")
         
         with col2:
             st.subheader("Confusion Matrix")
-            total_test = int(len(df) * 0.2)
-            volatile_rate = df['high_volatility'].mean()
-            
-            actual_positive = int(total_test * volatile_rate)
-            actual_negative = total_test - actual_positive
-            
-            tp = int(actual_positive * test_m['recall'])
-            fn = actual_positive - tp
-            fp = int(tp / test_m['precision']) - tp if test_m['precision'] > 0 else 0
-            tn = actual_negative - fp
-            
-            cm = np.array([[tn, fp], [fn, tp]])
-            
-            fig = px.imshow(
-                cm,
-                labels=dict(x="Predicted", y="Actual", color="Count"),
-                x=['Stable', 'Volatile'],
-                y=['Stable', 'Volatile'],
-                color_continuous_scale='Purples',
-                text_auto=True
-            )
-            fig.update_layout(height=400, template=get_plotly_template())
-            st.plotly_chart(fig, use_container_width=True)
+            confusion_image_path = 'confusion_matrix.png'
+            if os.path.exists(confusion_image_path):
+                st.image(confusion_image_path, use_container_width=True)
+            else:
+                st.warning("Confusion Matrix image not found")
         
         
         
@@ -685,63 +659,19 @@ def main():
         
         with col1:
             st.subheader("ROC Curve")
-            fpr_points = np.linspace(0, 1, 100)
-            auc = test_m['roc_auc']
-            tpr_points = np.power(fpr_points, (1-auc)/auc)
-            tpr_points = np.clip(tpr_points, 0, 1)
-            tpr_points = np.sort(tpr_points)
-            
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=fpr_points, y=tpr_points,
-                mode='lines',
-                name=f'ROC (AUC = {auc:.3f})',
-                line=dict(color='#8b5cf6', width=3)
-            ))
-            fig.add_trace(go.Scatter(
-                x=[0, 1], y=[0, 1],
-                mode='lines',
-                name='Random',
-                line=dict(dash='dash', color='#9ca3af')
-            ))
-            fig.update_layout(
-                xaxis_title="False Positive Rate",
-                yaxis_title="True Positive Rate",
-                height=400,
-                template=get_plotly_template()
-            )
-            st.plotly_chart(fig, use_container_width=True)
+            roc_image_path = 'roc_curve.png'
+            if os.path.exists(roc_image_path):
+                st.image(roc_image_path, use_container_width=True)
+            else:
+                st.warning("ROC curve image not found")
         
         with col2:
             st.subheader("Precision-Recall Curve")
-            recall_points = np.linspace(0.01, 1, 100)
-            pr_auc = test_m['pr_auc']
-            baseline = df['high_volatility'].mean()
-            
-            precision_points = pr_auc + (1 - pr_auc) * (1 - recall_points) ** 2
-            precision_points = np.clip(precision_points, baseline, 1)
-            
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=recall_points, y=precision_points,
-                mode='lines',
-                name=f'PR (AUC = {pr_auc:.3f})',
-                line=dict(color='#10b981', width=3)
-            ))
-            fig.add_hline(
-                y=baseline,
-                line_dash="dash",
-                line_color="#9ca3af",
-                annotation_text=f"Baseline ({baseline:.3f})"
-            )
-            fig.update_layout(
-                xaxis_title="Recall",
-                yaxis_title="Precision",
-                height=400,
-                template=get_plotly_template()
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        
+            pr_image_path = 'precision_recall_curve.png'
+            if os.path.exists(pr_image_path):
+                st.image(pr_image_path, use_container_width=True)
+            else:
+                st.warning("Precision-Recall curve image not found")
         
         
         # Classification Report

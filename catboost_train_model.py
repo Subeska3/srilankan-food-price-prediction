@@ -499,13 +499,119 @@ importance_df.to_csv('feature_importance.csv', index=False)
 print("Feature importance saved to: feature_importance.csv")
 
 
-#########################  10. VISUALIZATION #########################
+#########################  10. VISUALIZATION - SAVE AS SEPARATE IMAGES #########################
 
-print("10. VISUALIZATION")
-
-fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+print("10. VISUALIZATION - SAVE AS SEPARATE IMAGES")
 
 # 1. Confusion Matrix Heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+            xticklabels=['Stable', 'Volatile'],
+            yticklabels=['Stable', 'Volatile'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix (Test Set)')
+plt.tight_layout()
+plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("Saved: confusion_matrix.png")
+
+# 2. ROC Curve
+plt.figure(figsize=(8, 6))
+fpr, tpr, _ = roc_curve(y_test, y_test_prob)
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC (AUC = {test_metrics["roc_auc"]:.3f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve (Test Set)')
+plt.legend(loc='lower right')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('roc_curve.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("Saved: roc_curve.png")
+
+# 3. Precision-Recall Curve
+plt.figure(figsize=(8, 6))
+precision, recall, _ = precision_recall_curve(y_test, y_test_prob)
+plt.plot(recall, precision, color='green', lw=2, label=f'PR (AUC = {test_metrics["pr_auc"]:.3f})')
+plt.axhline(y=y_test.mean(), color='navy', linestyle='--', label=f'Baseline ({y_test.mean():.3f})')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-Recall Curve (Test Set)')
+plt.legend(loc='upper right')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('precision_recall_curve.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("Saved: precision_recall_curve.png")
+
+# 4. Feature Importance (Top 15)
+plt.figure(figsize=(10, 8))
+top_features = importance_df.head(15)
+plt.barh(top_features['feature'], top_features['importance'], color='teal')
+plt.xlabel('Feature Importance')
+plt.title('Top 15 Feature Importance (CatBoost)')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.savefig('feature_importance.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("Saved: feature_importance.png")
+
+# 5. Prediction Probability Distribution
+plt.figure(figsize=(10, 6))
+plt.hist(y_test_prob[y_test == 0], bins=50, alpha=0.5, label='Stable', color='blue')
+plt.hist(y_test_prob[y_test == 1], bins=50, alpha=0.5, label='Volatile', color='red')
+plt.xlabel('Predicted Probability of High Volatility')
+plt.ylabel('Frequency')
+plt.title('Prediction Probability Distribution')
+plt.legend()
+plt.axvline(x=0.5, color='black', linestyle='--', label='Threshold')
+plt.tight_layout()
+plt.savefig('prediction_probability_distribution.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("Saved: prediction_probability_distribution.png")
+
+# 6. Metrics Comparison (Train vs Test)
+plt.figure(figsize=(10, 6))
+metrics_names = ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC']
+train_vals = [train_metrics['accuracy'], train_metrics['precision'], train_metrics['recall'], 
+              train_metrics['f1'], train_metrics['roc_auc']]
+test_vals = [test_metrics['accuracy'], test_metrics['precision'], test_metrics['recall'], 
+             test_metrics['f1'], test_metrics['roc_auc']]
+
+x = np.arange(len(metrics_names))
+width = 0.35
+
+bars1 = plt.bar(x - width/2, train_vals, width, label='Train', color='steelblue')
+bars2 = plt.bar(x + width/2, test_vals, width, label='Test', color='coral')
+
+plt.ylabel('Score')
+plt.title('Model Performance Comparison (Train vs Test)')
+plt.xticks(x, metrics_names, rotation=45, ha='right')
+plt.legend()
+plt.ylim(0, 1)
+plt.grid(True, alpha=0.3, axis='y')
+
+# Add value labels on bars
+for bar in bars1:
+    height = bar.get_height()
+    plt.annotate(f'{height:.2f}', xy=(bar.get_x() + bar.get_width()/2, height),
+                 xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', fontsize=8)
+for bar in bars2:
+    height = bar.get_height()
+    plt.annotate(f'{height:.2f}', xy=(bar.get_x() + bar.get_width()/2, height),
+                 xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', fontsize=8)
+
+plt.tight_layout()
+plt.savefig('metrics_comparison.png', dpi=300, bbox_inches='tight')
+plt.close()
+print("Saved: metrics_comparison.png")
+
+# Also save the combined visualization (optional - for backward compatibility)
+fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+
+# Recreate all plots in the combined figure
 ax1 = axes[0, 0]
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax1,
             xticklabels=['Stable', 'Volatile'],
@@ -514,7 +620,6 @@ ax1.set_xlabel('Predicted')
 ax1.set_ylabel('Actual')
 ax1.set_title('Confusion Matrix (Test Set)')
 
-# 2. ROC Curve
 ax2 = axes[0, 1]
 fpr, tpr, _ = roc_curve(y_test, y_test_prob)
 ax2.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC (AUC = {test_metrics["roc_auc"]:.3f})')
@@ -525,7 +630,6 @@ ax2.set_title('ROC Curve (Test Set)')
 ax2.legend(loc='lower right')
 ax2.grid(True, alpha=0.3)
 
-# 3. Precision-Recall Curve
 ax3 = axes[0, 2]
 precision, recall, _ = precision_recall_curve(y_test, y_test_prob)
 ax3.plot(recall, precision, color='green', lw=2, label=f'PR (AUC = {test_metrics["pr_auc"]:.3f})')
@@ -536,7 +640,6 @@ ax3.set_title('Precision-Recall Curve (Test Set)')
 ax3.legend(loc='upper right')
 ax3.grid(True, alpha=0.3)
 
-# 4. Feature Importance (Top 15)
 ax4 = axes[1, 0]
 top_features = importance_df.head(15)
 ax4.barh(top_features['feature'], top_features['importance'], color='teal')
@@ -544,7 +647,6 @@ ax4.set_xlabel('Feature Importance')
 ax4.set_title('Top 15 Feature Importance (CatBoost)')
 ax4.invert_yaxis()
 
-# 5. Prediction Probability Distribution
 ax5 = axes[1, 1]
 ax5.hist(y_test_prob[y_test == 0], bins=50, alpha=0.5, label='Stable', color='blue')
 ax5.hist(y_test_prob[y_test == 1], bins=50, alpha=0.5, label='Volatile', color='red')
@@ -554,20 +656,10 @@ ax5.set_title('Prediction Probability Distribution')
 ax5.legend()
 ax5.axvline(x=0.5, color='black', linestyle='--', label='Threshold')
 
-# 6. Metrics Comparison (Train vs Test)
 ax6 = axes[1, 2]
-metrics_names = ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC']
-train_vals = [train_metrics['accuracy'], train_metrics['precision'], train_metrics['recall'], 
-              train_metrics['f1'], train_metrics['roc_auc']]
-test_vals = [test_metrics['accuracy'], test_metrics['precision'], test_metrics['recall'], 
-             test_metrics['f1'], test_metrics['roc_auc']]
-
 x = np.arange(len(metrics_names))
-width = 0.35
-
 bars1 = ax6.bar(x - width/2, train_vals, width, label='Train', color='steelblue')
 bars2 = ax6.bar(x + width/2, test_vals, width, label='Test', color='coral')
-
 ax6.set_ylabel('Score')
 ax6.set_title('Model Performance Comparison (Train vs Test)')
 ax6.set_xticks(x)
@@ -576,7 +668,6 @@ ax6.legend()
 ax6.set_ylim(0, 1)
 ax6.grid(True, alpha=0.3, axis='y')
 
-# Add value labels on bars
 for bar in bars1:
     height = bar.get_height()
     ax6.annotate(f'{height:.2f}', xy=(bar.get_x() + bar.get_width()/2, height),
@@ -588,8 +679,10 @@ for bar in bars2:
 
 plt.tight_layout()
 plt.savefig('catboost_evaluation_results.png', dpi=300, bbox_inches='tight')
-plt.show()
-print("\nVisualization saved as 'catboost_evaluation_results.png'")
+plt.close()
+print("Saved: catboost_evaluation_results.png (combined)")
+
+print("\nAll visualization files saved successfully!")
 
 
 #########################  11. EXPLAINABILITY - SHAP ANALYSIS #########################
